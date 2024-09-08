@@ -36,13 +36,23 @@ public_users.get("/author/:author", function (req, res) {
 		}
 		return acc;
 	}, {});
+
 	return res.status(200).json({ ...filteredBooks });
 });
 
 // Get all books based on title
 public_users.get("/title/:title", function (req, res) {
 	//Write your code here
-	return res.status(300).json({ message: "Yet to be implemented" });
+	const { title } = req.params;
+	const filteredBooks = Object.entries(books).reduce((acc, [key, value]) => {
+		const currBook = books[key];
+		if (slugify(currBook.title) === slugify(title)) {
+			acc[key] = currBook;
+		}
+		return acc;
+	}, {});
+
+	return res.status(200).json({ ...filteredBooks });
 });
 
 //  Get book review
