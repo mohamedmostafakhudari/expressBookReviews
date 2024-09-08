@@ -1,3 +1,4 @@
+const { slugify } = require("../utils.js");
 const express = require("express");
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
@@ -27,7 +28,15 @@ public_users.get("/isbn/:isbn", function (req, res) {
 // Get book details based on author
 public_users.get("/author/:author", function (req, res) {
 	//Write your code here
-	return res.status(300).json({ message: "Yet to be implemented" });
+	const { author } = req.params;
+	const filteredBooks = Object.entries(books).reduce((acc, [key, value]) => {
+		const currBook = books[key];
+		if (slugify(currBook.author) === slugify(author)) {
+			acc[key] = currBook;
+		}
+		return acc;
+	}, {});
+	return res.status(200).json({ ...filteredBooks });
 });
 
 // Get all books based on title
