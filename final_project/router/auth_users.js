@@ -35,13 +35,9 @@ regd_users.post("/login", (req, res) => {
 });
 
 // logging out
-regd_users.post("/logout", (req, res) => {
-	if (req.session.authorization) {
-		req.session.destroy();
-		res.status(200).json({ message: "user logged out successfully - " + Date.now() });
-	} else {
-		res.status(201).json({ message: "no user is logged in" });
-	}
+regd_users.post("/auth/logout", (req, res) => {
+	req.session.destroy();
+	res.status(200).json({ message: "user logged out successfully - " + Date.now() });
 });
 
 // Add a book review
