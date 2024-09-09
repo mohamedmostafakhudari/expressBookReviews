@@ -1,6 +1,7 @@
-const { slugify } = require("../utils.js");
 const express = require("express");
-let books = require("./booksdb.js");
+const book_controller = require("../controllers/bookController.js");
+const review_controller = require("../controllers/reviewController.js");
+
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
@@ -19,57 +20,18 @@ public_users.post("/register", (req, res) => {
 });
 
 // Get the book list available in the shop
-public_users.get("/", function (req, res) {
-	//Write your code here
-	return res.status(200).json({ books });
-});
+public_users.get("/", book_controller.book_list);
 
 // Get book details based on ISBN
-public_users.get("/isbn/:isbn", function (req, res) {
-	//Write your code here
-	const { isbn } = req.params;
-	const book = books[isbn];
-
-	return res.status(200).json({ ...book });
-});
+public_users.get("/isbn/:isbn", book_controller.book_details_by_isbn);
 
 // Get book details based on author
-public_users.get("/author/:author", function (req, res) {
-	//Write your code here
-	const { author } = req.params;
-	const filteredBooks = Object.entries(books).reduce((acc, [key, value]) => {
-		const currBook = books[key];
-		if (slugify(currBook.author) === slugify(author)) {
-			acc[key] = currBook;
-		}
-		return acc;
-	}, {});
-
-	return res.status(200).json({ ...filteredBooks });
-});
+public_users.get("/author/:author", book_controller.book_details_by_author);
 
 // Get all books based on title
-public_users.get("/title/:title", function (req, res) {
-	//Write your code here
-	const { title } = req.params;
-	const filteredBooks = Object.entries(books).reduce((acc, [key, value]) => {
-		const currBook = books[key];
-		if (slugify(currBook.title) === slugify(title)) {
-			acc[key] = currBook;
-		}
-		return acc;
-	}, {});
-
-	return res.status(200).json({ ...filteredBooks });
-});
+public_users.get("/title/:title", book_controller.book_details_by_title);
 
 //  Get book review
-public_users.get("/review/:isbn", function (req, res) {
-	//Write your code here
-	const { isbn } = req.params;
-	const book = books[isbn];
-
-	res.status(200).json({ ...book.reviews });
-});
+public_users.get("/review/:isbn", review_controller.review_list);
 
 module.exports.general = public_users;
