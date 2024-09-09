@@ -23,6 +23,8 @@ regd_users.post("/login", (req, res) => {
 	const { username, password } = req.body;
 	if (!username || !password) return res.status(404).json({ message: "cannot log in!" });
 
+	if (req.session.authorization) return res.status(201).json({ message: "you are already logged in." });
+
 	if (authenticatedUser(username, password)) {
 		const accessToken = jwt.sign({ password }, "access", { expiresIn: 60 * 60 });
 		req.session.authorization = { accessToken, username };
@@ -32,10 +34,29 @@ regd_users.post("/login", (req, res) => {
 	}
 });
 
+// logging out
+regd_users.post("/logout", (req, res) => {
+	if (req.session.authorization) {
+		req.session.destroy();
+		res.status(200).json({ message: "user logged out successfully - " + Date.now() });
+	} else {
+		res.status(201).json({ message: "no user is logged in" });
+	}
+});
+
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
 	//Write your code here
-	return res.status(300).json({ message: "Yet to be implemented" });
+	const { isbn } = req.params;
+	const { review } = req.body;
+	const { user: username } = req;
+
+	const book = books[isbn];
+	const reviews = book.reviews;
+
+	reviews[username] = review;
+
+	res.status(200).json({ message: "a new review has been added." });
 });
 
 module.exports.authenticated = regd_users;
